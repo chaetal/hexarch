@@ -11,38 +11,30 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import static com.chaetal.hexarch.KafkaBDD.kafkaTopicUsingIn;
 import static com.chaetal.hexarch.KafkaBDD.then;
-import static org.hamcrest.CoreMatchers.anything;
+import static org.hamcrest.CoreMatchers.equalTo;
+
 
 @SpringBootTest
+@DirtiesContext
 @EmbeddedKafka(
         partitions = 1,
         brokerProperties = {"listeners=PLAINTEXT://localhost:19092", "port=19092"}
 )
-@DirtiesContext
-class HexarchApplicationTests {
+class JustKafkaTests {
 
-    // Приёмочный тест:
-    //   Дано: Приложение запущенно
-    //   Когда: Сообщение message отправляется в очередь in
-    //   Тогда: В очереди out появляется реакция на m
-
-    // Первый тест:
-    //   Дано: Приложение запущено.
-    //   Когда: Сообщение message отправлено в очередь in.
-    //   Тогда: В очереди out появляется какое-то сообщение.
     @Test
     @SneakyThrows
-    void testSendsSomeMessageToOutWhenAMessageIsSentToIn() {
-        // WHEN
+    void testActuallySendsMessage() {
         String data = "Some message";
-        this.inProducer.send(data);
 
-        then(kafkaTopicUsingIn(this.outTopic, "group", this.embeddedKafkaBroker)).shouldReceive(anything());
+        this.producer.send(data);
+
+        then(kafkaTopicUsingIn(this.outTopic, "group", this.embeddedKafkaBroker)).shouldReceive(equalTo(data));
     }
 
 
     @Autowired
-    private Producer.InProducer inProducer;
+    private Producer.OutProducer producer;
 
 
     @Value("${topic.out}")
@@ -51,5 +43,4 @@ class HexarchApplicationTests {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private EmbeddedKafkaBroker embeddedKafkaBroker;
-
 }

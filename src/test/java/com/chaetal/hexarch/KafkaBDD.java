@@ -1,9 +1,7 @@
 package com.chaetal.hexarch;
 
 import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.clients.consumer.Consumer;
 import org.hamcrest.Matcher;
-import org.mockito.ArgumentMatcher;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
@@ -13,8 +11,6 @@ import java.util.HashMap;
 
 import static java.util.Collections.singleton;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 
 public class KafkaBDD {
     public static KafkaTopicUnderTest then(KafkaTopicUnderTest topic) {
@@ -31,13 +27,13 @@ public class KafkaBDD {
 
     public static class KafkaTopicUnderTest {
 
-        public void shouldReceive(Matcher<String> argumentMatcher) {
+        public void shouldReceive(Matcher<Object> matcher) {
             ConsumerRecord<String, String> singleRecord = KafkaTestUtils.getSingleRecord(
                     this.consumer,
                     this.topic,
                     Duration.ofSeconds(3)
             );
-            assertThat(singleRecord.value(), is(argumentMatcher));
+            assertThat(singleRecord.value(), matcher);
         }
 
         private final String topic;
